@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using BankBlazorAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using BankBlazorAPI.Dtos;
 
 namespace BankBlazorAPI.Controllers
 {
@@ -15,11 +16,30 @@ namespace BankBlazorAPI.Controllers
             _context = context;
         }
 
-        [HttpGet]
-        public IActionResult GetCustomers()
+        [HttpGet("paginated")]
+        public IActionResult GetCustomersPaginated([FromQuery] int page = 1, [FromQuery] int pageSize = 50)
         {
-            var customers = _context.Customers.Take(20).ToList();
-            return Ok(customers);
+            if (page < 1) page = 1;
+            if (pageSize < 1) pageSize = 50;
+            if (pageSize > 200) pageSize = 200;
+
+            var total = _context.Customers.Count();
+
+            var items = _context.Customers
+                .OrderBy(c => c.CustomerId)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var result = new PagedResult<Customer>
+            {
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = total,
+                Items = items
+            };
+
+            return Ok(result);
         }
     }
 }
