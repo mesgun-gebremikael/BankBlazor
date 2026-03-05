@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using BankBlazorAPI.Models;
 
 namespace BankBlazorAPI
 {
@@ -10,6 +12,9 @@ namespace BankBlazorAPI
             // Add services to the container.
 
             builder.Services.AddControllers();
+
+            builder.Services.AddDbContext<AdventureWorksLt2022Context>(options =>
+                options.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=AdventureWorksLT2022;Trusted_Connection=True;TrustServerCertificate=True"));
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
