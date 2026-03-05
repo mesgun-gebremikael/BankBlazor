@@ -1,0 +1,95 @@
+﻿@page "/customers"
+@inject HttpClient Http
+
+<h3>Alla kunder</h3>
+
+@if (_loading)
+{
+    <p>Laddar...</p>
+}
+else if (_result is null)
+{
+    <p>Inga data.</p>
+}
+else
+{
+    <p>Visar sida @_page (pageSize @_pageSize). Totalt: @_result.TotalCount</p>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Namn</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in _result.Items)
+            {
+                <tr>
+                    <td>@c.CustomerId</td>
+                    <td>@c.FirstName @c.LastName</td>
+                    <td>
+                        <a href="/dashboard/@c.CustomerId">Öppna</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button @onclick="Prev" disabled="@(_page <= 1)">Föregående</button>
+    <button @onclick="Next" disabled="@(_result.Items.Count < _pageSize)">Nästa</button>
+}
+
+@code {
+    private bool _loading = true;
+
+    private int _page = 1;
+    private int _pageSize = 50;
+
+    private PagedResult<Customer>? _result;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Load();
+    }
+
+    private async Task Load()
+    {
+        _loading = true;
+        StateHasChanged();
+
+        _result = await Http.GetFromJsonAsync<PagedResult<Customer>>(
+            $"api/customers/paginated?page={_page}&pageSize={_pageSize}");
+
+        _loading = false;
+    }
+
+    private async Task Prev()
+    {
+        if (_page <= 1) return;
+        _page--;
+        await Load();
+    }
+
+    private async Task Next()
+    {
+        _page++;
+        await Load();
+    }
+
+    public class PagedResult<T>
+    {
+        public int Page { get; set; }
+        public int PageSize { get; set; }
+        public int TotalCount { get; set; }
+        public List<T> Items { get; set; } = new();
+    }
+
+    public class Customer
+    {
+        public int CustomerId { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+    }
+}
