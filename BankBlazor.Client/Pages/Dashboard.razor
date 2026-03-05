@@ -1,0 +1,68 @@
+﻿@page "/dashboard/{CustomerId:int}"
+@inject HttpClient Http
+
+<h3>Dashboard – kund @CustomerId</h3>
+
+@if (_loading)
+{
+    <p>Laddar...</p>
+}
+else if (_customer is null)
+{
+    <p>Hittade ingen kund.</p>
+}
+else
+{
+    <p><b>Namn:</b> @_customer.FirstName @_customer.LastName</p>
+    <p><b>Email:</b> @_customer.EmailAddress</p>
+
+    <hr />
+    <h4>Adresser</h4>
+
+    @if (_customer.Addresses.Count == 0)
+    {
+        <p>Inga adresser.</p>
+    }
+    else
+    {
+        <ul>
+            @foreach (var a in _customer.Addresses)
+            {
+                <li>@a.AddressLine1, @a.City (@a.CountryRegion)</li>
+            }
+        </ul>
+    }
+}
+
+@code {
+    [Parameter] public int CustomerId { get; set; }
+
+    private bool _loading = true;
+    private CustomerDetails? _customer;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _loading = true;
+
+        // Denna endpoint ska vi skapa i API:t i nästa steg:
+        _customer = await Http.GetFromJsonAsync<CustomerDetails>($"api/customers/{CustomerId}");
+
+        _loading = false;
+    }
+
+    public class CustomerDetails
+    {
+        public int CustomerId { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? EmailAddress { get; set; }
+        public List<AddressDto> Addresses { get; set; } = new();
+    }
+
+    public class AddressDto
+    {
+        public string? AddressLine1 { get; set; }
+        public string? City { get; set; }
+        public string? CountryRegion { get; set; }
+    }
+}
