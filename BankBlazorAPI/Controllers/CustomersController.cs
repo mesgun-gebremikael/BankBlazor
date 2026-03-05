@@ -54,6 +54,18 @@ namespace BankBlazorAPI.Controllers
                     c.FirstName,
                     c.LastName,
                     c.EmailAddress,
+
+                    Orders = c.SalesOrderHeaders
+                        .OrderByDescending(o => o.OrderDate)
+                        .Take(20)
+                        .Select(o => new
+                        {
+                            o.SalesOrderId,
+                            o.OrderDate,
+                            o.TotalDue
+                        })
+                        .ToList(),
+
                     Addresses = c.CustomerAddresses
                         .Select(ca => ca.Address)
                         .Select(a => new
