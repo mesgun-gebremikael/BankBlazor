@@ -15,7 +15,9 @@ public class Program
 
         var apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? builder.HostEnvironment.BaseAddress;
         builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
+        builder.Services.AddScoped<BankBlazor.Client.Services.CustomersApi>();
 
         await builder.Build().RunAsync();
+       
     }
 }
