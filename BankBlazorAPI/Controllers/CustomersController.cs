@@ -2,6 +2,7 @@
 using BankBlazorAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using BankBlazorAPI.Dtos;
+using Microsoft.EntityFrameworkCore;
 
 namespace BankBlazorAPI.Controllers
 {
@@ -40,6 +41,35 @@ namespace BankBlazorAPI.Controllers
             };
 
             return Ok(result);
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<object>> GetCustomerById(int id)
+        {
+            var customer = await _context.Customers
+                .Where(c => c.CustomerId == id)
+                .Select(c => new
+                {
+                    c.CustomerId,
+                    c.FirstName,
+                    c.LastName,
+                    c.EmailAddress,
+                    Addresses = c.CustomerAddresses
+                        .Select(ca => ca.Address)
+                        .Select(a => new
+                        {
+                            a.AddressLine1,
+                            a.City,
+                            a.CountryRegion
+                        })
+                        .ToList()
+                })
+                .FirstOrDefaultAsync();
+
+            if (customer is null)
+                return NotFound();
+
+            return Ok(customer);
         }
     }
 }
