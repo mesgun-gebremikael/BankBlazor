@@ -1,0 +1,44 @@
+﻿@page "/order/{OrderId:int}"
+@inject HttpClient Http
+
+<h3>Order</h3>
+
+@if (_loading)
+{
+    <p>Laddar...</p>
+}
+else if (_order is null)
+{
+    <p>Ingen order hittades.</p>
+}
+else
+{
+    <p><b>OrderId:</b> @_order.SalesOrderId</p>
+    <p><b>Datum:</b> @_order.OrderDate.ToShortDateString()</p>
+    <p><b>Total:</b> @_order.TotalDue</p>
+}
+
+@code {
+
+    [Parameter]
+    public int OrderId { get; set; }
+
+    private bool _loading = true;
+    private OrderDto? _order;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _loading = true;
+
+        _order = await Http.GetFromJsonAsync<OrderDto>($"api/orders/{OrderId}");
+
+        _loading = false;
+    }
+
+    public class OrderDto
+    {
+        public int SalesOrderId { get; set; }
+        public DateTime OrderDate { get; set; }
+        public decimal TotalDue { get; set; }
+    }
+}

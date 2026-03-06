@@ -56,7 +56,11 @@ else
                 @foreach (var o in _customer.Orders)
                 {
                     <tr>
-                        <td>@o.SalesOrderId</td>
+                        <td>
+                            <a href="/order/@o.SalesOrderId">
+                                @o.SalesOrderId
+                            </a>
+                        </td>
                         <td>@o.OrderDate.ToShortDateString()</td>
                         <td>@o.TotalDue</td>
                     </tr>
