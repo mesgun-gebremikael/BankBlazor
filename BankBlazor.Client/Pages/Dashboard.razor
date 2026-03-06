@@ -13,7 +13,10 @@ else if (_customer is null)
 }
 else
 {
-    <h4>@_customer.FirstName @_customer.LastName</h4>
+    <h4>
+        @_customer.FirstName @_customer.LastName
+        <small>(Id: @_customer.CustomerId)</small>
+    </h4>
     <p><b>Email:</b> @_customer.EmailAddress</p>
 
     <h5>Adresser</h5>
