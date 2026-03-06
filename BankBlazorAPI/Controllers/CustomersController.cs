@@ -42,7 +42,6 @@ namespace BankBlazorAPI.Controllers
 
             return Ok(result);
         }
-
         [HttpGet("{id:int}")]
         public async Task<ActionResult<object>> GetCustomerById(int id)
         {
@@ -55,17 +54,6 @@ namespace BankBlazorAPI.Controllers
                     c.LastName,
                     c.EmailAddress,
 
-                    Orders = c.SalesOrderHeaders
-                        .OrderByDescending(o => o.OrderDate)
-                        .Take(20)
-                        .Select(o => new
-                        {
-                            o.SalesOrderId,
-                            o.OrderDate,
-                            o.TotalDue
-                        })
-                        .ToList(),
-
                     Addresses = c.CustomerAddresses
                         .Select(ca => ca.Address)
                         .Select(a => new
@@ -73,6 +61,18 @@ namespace BankBlazorAPI.Controllers
                             a.AddressLine1,
                             a.City,
                             a.CountryRegion
+                        })
+                        .ToList(),
+
+                    Orders = _context.SalesOrderHeaders
+                        .Where(o => o.CustomerId == id)
+                        .OrderByDescending(o => o.OrderDate)
+                        .Take(5)
+                        .Select(o => new
+                        {
+                            o.SalesOrderId,
+                            o.OrderDate,
+                            o.TotalDue
                         })
                         .ToList()
                 })
