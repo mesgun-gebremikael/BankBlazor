@@ -83,5 +83,21 @@ namespace BankBlazorAPI.Controllers
 
             return Ok(customer);
         }
+
+        [HttpGet("with-orders")]
+        public IActionResult GetCustomersWithOrders()
+        {
+            var customers = _context.SalesOrderHeaders
+                .Select(o => o.CustomerId)
+                .Distinct()
+                .Take(20)
+                .ToList();
+
+            return Ok(customers);
+        }
     }
+
+
+
+
 }
