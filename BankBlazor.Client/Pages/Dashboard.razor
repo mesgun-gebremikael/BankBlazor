@@ -1,7 +1,9 @@
 ﻿@page "/dashboard/{CustomerId:int}"
 @inject HttpClient Http
 
-<h3>Dashboard</h3>
+<p>
+    <a href="/customers">← Tillbaka till kunder</a>
+</p>
 
 @if (_loading)
 {
