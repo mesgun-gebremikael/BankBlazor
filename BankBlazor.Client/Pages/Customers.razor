@@ -3,6 +3,11 @@
 
 <h3>Alla kunder</h3>
 
+@if (_result != null)
+{
+    <p>Antal kunder på sidan: @_result.Items.Count</p>
+}
+
 @if (_loading)
 {
     <p>Laddar...</p>
