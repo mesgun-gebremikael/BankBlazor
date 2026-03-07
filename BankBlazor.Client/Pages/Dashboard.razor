@@ -40,6 +40,8 @@ else
     <hr />
     <h5>Senaste orders</h5>
 
+    <p><b>Antal orders:</b> @_customer.Orders.Count</p>
+
     @if (_customer.Orders is null || _customer.Orders.Count == 0)
     {
         <p>Inga orders.</p>
