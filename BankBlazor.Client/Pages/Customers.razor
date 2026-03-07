@@ -1,7 +1,8 @@
 ﻿@page "/customers"
 @inject BankBlazor.Client.Services.CustomersApi Api
 
-<h3>Alla kunder</h3>
+<h3>Kundlista</h3>
+<p>Välj en kund för att se detaljer och orderhistorik.</p>
 
 @if (_result != null)
 {
@@ -10,7 +11,7 @@
 
 @if (_loading)
 {
-    <p>Laddar...</p>
+    <p>Laddar kunder från databasen...</p>
 }
 else if (_result is null)
 {
