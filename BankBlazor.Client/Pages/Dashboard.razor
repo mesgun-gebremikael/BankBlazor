@@ -45,7 +45,7 @@ else
     else
     {
         <p><b>Antal orders:</b> @_customer.Orders.Count</p>
-        <p><b>Total summa:</b> @_customer.Orders.Sum(o => o.TotalDue)</p>
+        <p><b>Total summa:</b> @_customer.Orders.Sum(o => o.TotalDue).ToString("C")</p>
 
         <table class="table">
             <thead>
