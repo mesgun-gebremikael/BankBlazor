@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using BankBlazorAPI.Models;
-using Microsoft.AspNetCore.Mvc;
-using BankBlazorAPI.Dtos;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using BankBlazorAPI.BankModels;
 
 namespace BankBlazorAPI.Controllers
 {
@@ -10,94 +8,77 @@ namespace BankBlazorAPI.Controllers
     [Route("api/[controller]")]
     public class CustomersController : ControllerBase
     {
-        private readonly AdventureWorksLt2022Context _context;
+        private readonly BankBlazorContext _context;
 
-        public CustomersController(AdventureWorksLt2022Context context)
+        public CustomersController(BankBlazorContext context)
         {
             _context = context;
         }
 
         [HttpGet("paginated")]
-        public IActionResult GetCustomersPaginated([FromQuery] int page = 1, [FromQuery] int pageSize = 50)
+        public async Task<IActionResult> GetCustomersPaginated(int page = 1, int pageSize = 50)
         {
             if (page < 1) page = 1;
             if (pageSize < 1) pageSize = 50;
-            if (pageSize > 200) pageSize = 200;
 
-            var total = _context.Customers.Count();
+            var totalCount = await _context.Customers.CountAsync();
 
-            var items = _context.Customers
+            var customers = await _context.Customers
                 .OrderBy(c => c.CustomerId)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .ToList();
+                .Select(c => new
+                {
+                    customerId = c.CustomerId,
+                    firstName = c.Givenname,
+                    lastName = c.Surname,
+                    emailAddress = c.Emailaddress
+                })
+                .ToListAsync();
 
-            var result = new PagedResult<Customer>
+            return Ok(new
             {
-                Page = page,
-                PageSize = pageSize,
-                TotalCount = total,
-                Items = items
-            };
-
-            return Ok(result);
+                page,
+                pageSize,
+                totalCount,
+                items = customers
+            });
         }
+
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<object>> GetCustomerById(int id)
+        public async Task<IActionResult> GetCustomerById(int id)
         {
             var customer = await _context.Customers
                 .Where(c => c.CustomerId == id)
                 .Select(c => new
                 {
-                    c.CustomerId,
-                    c.FirstName,
-                    c.LastName,
-                    c.EmailAddress,
-
-                    Addresses = c.CustomerAddresses
-                        .Select(ca => ca.Address)
-                        .Select(a => new
+                    customerId = c.CustomerId,
+                    firstName = c.Givenname,
+                    lastName = c.Surname,
+                    emailAddress = c.Emailaddress,
+                    addresses = new[]
+                    {
+                        new
                         {
-                            a.AddressLine1,
-                            a.City,
-                            a.CountryRegion
-                        })
-                        .ToList(),
-
-                    Orders = _context.SalesOrderHeaders
-                        .Where(o => o.CustomerId == id)
-                        .OrderByDescending(o => o.OrderDate)
-                        .Take(5)
-                        .Select(o => new
+                            addressLine1 = c.Streetaddress,
+                            city = c.City,
+                            countryRegion = c.Country
+                        }
+                    },
+                    accounts = c.Dispositions
+                        .Select(d => new
                         {
-                            o.SalesOrderId,
-                            o.OrderDate,
-                            o.TotalDue
+                            accountId = d.Account.AccountId,
+                            balance = d.Account.Balance
                         })
                         .ToList()
                 })
                 .FirstOrDefaultAsync();
 
-            if (customer is null)
+            if (customer == null)
                 return NotFound();
 
             return Ok(customer);
         }
-
-        [HttpGet("with-orders")]
-        public IActionResult GetCustomersWithOrders()
-        {
-            var customers = _context.SalesOrderHeaders
-                .Select(o => o.CustomerId)
-                .Distinct()
-                .Take(20)
-                .ToList();
-
-            return Ok(customers);
-        }
     }
-
-
-
-
 }
