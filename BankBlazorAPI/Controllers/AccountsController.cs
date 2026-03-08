@@ -117,6 +117,7 @@ namespace BankBlazorAPI.Controllers
                 message = "Uttag genomfört.",
                 accountId = account.AccountId,
                 newBalance = account.Balance
+
             });
         }
     }
