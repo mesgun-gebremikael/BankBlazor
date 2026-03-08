@@ -120,6 +120,79 @@ namespace BankBlazorAPI.Controllers
 
             });
         }
+
+        [HttpPost("transfer")]
+        public async Task<IActionResult> Transfer([FromBody] TransferRequest request)
+        {
+            if (request.Amount <= 0)
+            {
+                return BadRequest("Beloppet måste vara större än 0.");
+            }
+
+            if (request.FromAccountId == request.ToAccountId)
+            {
+                return BadRequest("Du kan inte överföra till samma konto.");
+            }
+
+            var fromAccount = await _context.Accounts
+                .FirstOrDefaultAsync(a => a.AccountId == request.FromAccountId);
+
+            var toAccount = await _context.Accounts
+                .FirstOrDefaultAsync(a => a.AccountId == request.ToAccountId);
+
+            if (fromAccount == null || toAccount == null)
+            {
+                return NotFound("Ett eller båda kontona hittades inte.");
+            }
+
+            if (fromAccount.Balance < request.Amount)
+            {
+                return BadRequest("Det finns inte tillräckligt med saldo på frånkontot.");
+            }
+
+            fromAccount.Balance -= request.Amount;
+            toAccount.Balance += request.Amount;
+
+            var withdrawTransaction = new Transaction
+            {
+                AccountId = fromAccount.AccountId,
+                Date = DateTime.Now,
+                Type = "Debit",
+                Operation = "Transfer to account " + toAccount.AccountId,
+                Amount = request.Amount,
+                Balance = fromAccount.Balance,
+                Symbol = null,
+                Bank = null,
+                Account = null
+            };
+
+            var depositTransaction = new Transaction
+            {
+                AccountId = toAccount.AccountId,
+                Date = DateTime.Now,
+                Type = "Credit",
+                Operation = "Transfer from account " + fromAccount.AccountId,
+                Amount = request.Amount,
+                Balance = toAccount.Balance,
+                Symbol = null,
+                Bank = null,
+                Account = null
+            };
+
+            _context.Transactions.Add(withdrawTransaction);
+            _context.Transactions.Add(depositTransaction);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Överföring genomförd.",
+                fromAccountId = fromAccount.AccountId,
+                toAccountId = toAccount.AccountId,
+                fromBalance = fromAccount.Balance,
+                toBalance = toAccount.Balance
+            });
+        }
     }
 
     public class DepositRequest
@@ -130,6 +203,13 @@ namespace BankBlazorAPI.Controllers
     public class WithdrawRequest
     {
         public int AccountId { get; set; }
+        public decimal Amount { get; set; }
+    }
+
+    public class TransferRequest
+    {
+        public int FromAccountId { get; set; }
+        public int ToAccountId { get; set; }
         public decimal Amount { get; set; }
     }
 }
