@@ -29,5 +29,54 @@ namespace BankBlazorAPI.Controllers
 
             return Ok(accounts);
         }
+
+        [HttpPost("deposit")]
+        public async Task<IActionResult> Deposit([FromBody] DepositRequest request)
+        {
+            if (request.Amount <= 0)
+            {
+                return BadRequest("Beloppet måste vara större än 0.");
+            }
+
+            var account = await _context.Accounts
+                .FirstOrDefaultAsync(a => a.AccountId == request.AccountId);
+
+            if (account == null)
+            {
+                return NotFound("Kontot hittades inte.");
+            }
+
+            account.Balance += request.Amount;
+
+            var transaction = new Transaction
+            {
+                AccountId = account.AccountId,
+                Date = DateTime.Now,
+                Type = "Credit",
+                Operation = "Deposit",
+                Amount = request.Amount,
+                Balance = account.Balance,
+                Symbol = null,
+                Bank = null,
+                Account = null
+            };
+
+            _context.Transactions.Add(transaction);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Insättning genomförd.",
+                accountId = account.AccountId,
+                newBalance = account.Balance
+            });
+        }
+    }
+
+    public class DepositRequest
+    {
+        public int AccountId { get; set; }
+        public decimal Amount { get; set; }
     }
 }
