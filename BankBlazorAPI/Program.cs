@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using BankBlazorAPI.Models;
+using BankBlazorAPI.BankModels;
 
 namespace BankBlazorAPI
 {
@@ -13,8 +14,8 @@ namespace BankBlazorAPI
             // Add services to the container.
             builder.Services.AddControllers();
 
-            builder.Services.AddDbContext<AdventureWorksLt2022Context>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("AdventureWorks")));
+            builder.Services.AddDbContext<BankBlazorContext>(options =>
+     options.UseSqlServer(builder.Configuration.GetConnectionString("BankBlazor")));
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
