@@ -1,4 +1,5 @@
 ﻿@page "/"
+@inject HttpClient Http
 
 <PageTitle>Home</PageTitle>
 
@@ -25,10 +26,34 @@
 <section id="transactions" class="container">
     <h2>Account Transactions</h2>
     <div class="account">
-        <p><strong>Account Number:</strong> 123456789</p>
-        <p><strong>Balance:</strong> $5,000</p>
+        <p><strong>Account Number:</strong> @_accountNumber</p>
+        <p><strong>Balance:</strong> @_balance</p>
     </div>
     <button>Deposit</button>
     <button>Withdraw</button>
     <button>Transfer</button>
 </section>
+
+@code {
+
+    private int _accountNumber;
+    private decimal _balance;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var accounts = await Http.GetFromJsonAsync<List<AccountDto>>("api/accounts/customer/1");
+
+        if (accounts != null && accounts.Count > 0)
+        {
+            _accountNumber = accounts[0].AccountId;
+            _balance = accounts[0].Balance;
+        }
+    }
+
+    public class AccountDto
+    {
+        public int AccountId { get; set; }
+        public decimal Balance { get; set; }
+    }
+
+}
