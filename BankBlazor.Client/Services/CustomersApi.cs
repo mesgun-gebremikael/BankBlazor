@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Json;
 using BankBlazor.Client.Models;
+using BankBlazor.Shared;
 
 namespace BankBlazor.Client.Services;
 
@@ -12,10 +13,12 @@ public class CustomersApi
         _http = http;
     }
 
-    public async Task<PagedResult<CustomerDto>?> GetCustomers(int page, int pageSize)
+    public async Task<PagedResult<CustomerDto>> GetCustomers(int page, int pageSize)
     {
-        return await _http.GetFromJsonAsync<PagedResult<CustomerDto>>(
+        var result = await _http.GetFromJsonAsync<PagedResult<CustomerDto>>(
             $"api/customers/paginated?page={page}&pageSize={pageSize}");
+
+        return result ?? new PagedResult<CustomerDto>();
     }
 
     public async Task<CustomerDto?> GetCustomerById(int id)

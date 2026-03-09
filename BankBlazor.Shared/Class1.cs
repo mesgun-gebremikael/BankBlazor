@@ -1,0 +1,7 @@
+﻿namespace BankBlazor.Shared
+{
+    public class Class1
+    {
+
+    }
+}

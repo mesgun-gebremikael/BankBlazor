@@ -20,4 +20,8 @@
     <Folder Include="wwwroot\images\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BankBlazor.Shared\BankBlazor.Shared.csproj" />
+  </ItemGroup>
+
 </Project>
