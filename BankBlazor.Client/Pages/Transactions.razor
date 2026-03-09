@@ -49,12 +49,31 @@
     </button>
 </div>
 
+<hr />
+
+<h5>Uttag</h5>
+
+<div class="mb-3">
+    <label>Kontonummer:</label>
+    <input @bind="_withdrawAccountId" class="form-control" />
+
+    <label>Belopp:</label>
+    <input @bind="_withdrawAmount" class="form-control" />
+
+    <button class="btn btn-warning mt-2" @onclick="Withdraw">
+        Gör uttag
+    </button>
+</div>
+
 @code {
     private int _customerId;
     private List<AccountDto> _accounts = new();
 
     private int _depositAccountId;
     private decimal _depositAmount;
+
+    private int _withdrawAccountId;
+    private decimal _withdrawAmount;
 
     private async Task LoadAccounts()
     {
@@ -68,6 +87,17 @@
         {
             accountId = _depositAccountId,
             amount = _depositAmount
+        });
+
+        await LoadAccounts();
+    }
+
+    private async Task Withdraw()
+    {
+        await Http.PostAsJsonAsync("api/accounts/withdraw", new
+        {
+            accountId = _withdrawAccountId,
+            amount = _withdrawAmount
         });
 
         await LoadAccounts();
