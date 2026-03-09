@@ -1,0 +1,51 @@
+﻿@page "/transactions"
+@inject HttpClient Http
+
+<h3>Transactions</h3>
+
+<p>Här kan du hämta kundens konton och se saldo.</p>
+
+<div class="mb-3">
+    <label>Kundens id:</label>
+    <input @bind="_customerId" class="form-control" />
+    <button class="btn btn-primary mt-2" @onclick="LoadAccounts">Hämta konton</button>
+</div>
+
+@if (_accounts.Count > 0)
+{
+    <h5>Kundens konton</h5>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Kontonummer</th>
+                <th>Saldo</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var account in _accounts)
+            {
+                <tr>
+                    <td>@account.AccountId</td>
+                    <td>@account.Balance.ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private int _customerId;
+    private List<AccountDto> _accounts = new();
+
+    private async Task LoadAccounts()
+    {
+        var result = await Http.GetFromJsonAsync<List<AccountDto>>($"api/accounts/customer/{_customerId}");
+        _accounts = result ?? new List<AccountDto>();
+    }
+
+    public class AccountDto
+    {
+        public int AccountId { get; set; }
+        public decimal Balance { get; set; }
+    }
+}
