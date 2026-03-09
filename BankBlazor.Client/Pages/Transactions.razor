@@ -33,14 +33,44 @@
     </table>
 }
 
+<hr />
+
+<h5>Insättning</h5>
+
+<div class="mb-3">
+    <label>Kontonummer:</label>
+    <input @bind="_depositAccountId" class="form-control" />
+
+    <label>Belopp:</label>
+    <input @bind="_depositAmount" class="form-control" />
+
+    <button class="btn btn-success mt-2" @onclick="Deposit">
+        Gör insättning
+    </button>
+</div>
+
 @code {
     private int _customerId;
     private List<AccountDto> _accounts = new();
+
+    private int _depositAccountId;
+    private decimal _depositAmount;
 
     private async Task LoadAccounts()
     {
         var result = await Http.GetFromJsonAsync<List<AccountDto>>($"api/accounts/customer/{_customerId}");
         _accounts = result ?? new List<AccountDto>();
+    }
+
+    private async Task Deposit()
+    {
+        await Http.PostAsJsonAsync("api/accounts/deposit", new
+        {
+            accountId = _depositAccountId,
+            amount = _depositAmount
+        });
+
+        await LoadAccounts();
     }
 
     public class AccountDto
