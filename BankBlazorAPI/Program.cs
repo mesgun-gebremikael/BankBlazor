@@ -11,7 +11,7 @@ namespace BankBlazorAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // Adda services to the container.
             builder.Services.AddControllers();
             builder.Services.AddHttpClient();
 
