@@ -10,50 +10,63 @@
 </section>
 
 <section id="greeting" class="container">
-    <h2>Hello Admin! The next Scottish bank holiday is <strong>{holiday}</strong> on <strong>{date}</strong></h2>
+    @if (_loading)
+    {
+        <h2>Hello Admin! Loading next Scottish bank holiday...</h2>
+    }
+    else if (!string.IsNullOrWhiteSpace(_holiday))
+    {
+        <h2>Hello Admin! The next Scottish bank holiday is <strong>@_holiday</strong> on <strong>@_date</strong></h2>
+    }
+    else
+    {
+        <h2>Hello Admin! Could not load bank holiday.</h2>
+    }
 </section>
-
 
 <section id="dashboard" class="container">
     <h2>Customer Dashboard</h2>
     <div class="info">
-        <p><strong>Name:</strong> John Doe</p>
-        <p><strong>Email:</strong> johndoe@email.com</p>
-        <p><strong>Phone:</strong> +1234567890</p>
+        <p>Go to the customer list to view customer details and accounts.</p>
     </div>
 </section>
 
 <section id="transactions" class="container">
     <h2>Account Transactions</h2>
     <div class="account">
-        <p><strong>Account Number:</strong> @_accountNumber</p>
-        <p><strong>Balance:</strong> @_balance</p>
+        <p>Go to the transactions page to make deposits, withdrawals and transfers.</p>
     </div>
-    <button>Deposit</button>
-    <button>Withdraw</button>
-    <button>Transfer</button>
 </section>
 
 @code {
-
-    private int _accountNumber;
-    private decimal _balance;
+    private bool _loading = true;
+    private string? _holiday;
+    private string? _date;
 
     protected override async Task OnInitializedAsync()
     {
-        var accounts = await Http.GetFromJsonAsync<List<AccountDto>>("api/accounts/customer/1");
-
-        if (accounts != null && accounts.Count > 0)
+        try
         {
-            _accountNumber = accounts[0].AccountId;
-            _balance = accounts[0].Balance;
+            var result = await Http.GetFromJsonAsync<BankHolidayDto>("api/BankHoliday/next-scottish");
+
+            if (result != null)
+            {
+                _holiday = result.Holiday;
+                _date = result.Date;
+            }
         }
+        catch
+        {
+            _holiday = null;
+            _date = null;
+        }
+
+        _loading = false;
     }
 
-    public class AccountDto
+    public class BankHolidayDto
     {
-        public int AccountId { get; set; }
-        public decimal Balance { get; set; }
+        public string? Holiday { get; set; }
+        public string? Date { get; set; }
     }
-
 }
