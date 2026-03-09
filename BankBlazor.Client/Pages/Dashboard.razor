@@ -19,6 +19,7 @@ else
         @_customer.FirstName @_customer.LastName
         <small>(Id: @_customer.CustomerId)</small>
     </h4>
+
     <p><b>Email:</b> @_customer.EmailAddress</p>
 
     <h5>Adresser</h5>
@@ -38,38 +39,30 @@ else
     }
 
     <hr />
-    <h5>Senaste orders</h5>
 
-    <p><b>Antal orders:</b> @_customer.Orders.Count</p>
+    <h5>Kundens konton</h5>
 
-    @if (_customer.Orders is null || _customer.Orders.Count == 0)
+    @if (_customer.Accounts is null || _customer.Accounts.Count == 0)
     {
-        <p>Inga orders.</p>
+        <p>Inga konton.</p>
     }
     else
     {
-        <p><b>Antal orders:</b> @_customer.Orders.Count</p>
-        <p><b>Total summa:</b> @_customer.Orders.Sum(o => o.TotalDue).ToString("C")</p>
+        <p><b>Antal konton:</b> @_customer.Accounts.Count</p>
 
         <table class="table">
             <thead>
                 <tr>
-                    <th>OrderId</th>
-                    <th>Datum</th>
-                    <th>Total</th>
+                    <th>Kontonummer</th>
+                    <th>Saldo</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var o in _customer.Orders)
+                @foreach (var a in _customer.Accounts)
                 {
                     <tr>
-                        <td>
-                            <a href="/order/@o.SalesOrderId">
-                                @o.SalesOrderId
-                            </a>
-                        </td>
-                        <td>@o.OrderDate.ToShortDateString()</td>
-                        <td>@o.TotalDue.ToString("C")</td>
+                        <td>@a.AccountId</td>
+                        <td>@a.Balance.ToString("C")</td>
                     </tr>
                 }
             </tbody>
@@ -99,7 +92,7 @@ else
         public string? LastName { get; set; }
         public string? EmailAddress { get; set; }
         public List<AddressDto> Addresses { get; set; } = new();
-        public List<OrderDto> Orders { get; set; } = new();
+        public List<AccountDto> Accounts { get; set; } = new();
     }
 
     public class AddressDto
@@ -109,10 +102,9 @@ else
         public string? CountryRegion { get; set; }
     }
 
-    public class OrderDto
+    public class AccountDto
     {
-        public int SalesOrderId { get; set; }
-        public DateTime OrderDate { get; set; }
-        public decimal TotalDue { get; set; }
+        public int AccountId { get; set; }
+        public decimal Balance { get; set; }
     }
 }
