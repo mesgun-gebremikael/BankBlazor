@@ -65,6 +65,25 @@
     </button>
 </div>
 
+<hr />
+
+<h5>Överföring</h5>
+
+<div class="mb-3">
+    <label>Från konto:</label>
+    <input @bind="_fromAccountId" class="form-control" />
+
+    <label>Till konto:</label>
+    <input @bind="_toAccountId" class="form-control" />
+
+    <label>Belopp:</label>
+    <input @bind="_transferAmount" class="form-control" />
+
+    <button class="btn btn-danger mt-2" @onclick="Transfer">
+        Gör överföring
+    </button>
+</div>
+
 @code {
     private int _customerId;
     private List<AccountDto> _accounts = new();
@@ -74,6 +93,10 @@
 
     private int _withdrawAccountId;
     private decimal _withdrawAmount;
+
+    private int _fromAccountId;
+    private int _toAccountId;
+    private decimal _transferAmount;
 
     private async Task LoadAccounts()
     {
@@ -98,6 +121,18 @@
         {
             accountId = _withdrawAccountId,
             amount = _withdrawAmount
+        });
+
+        await LoadAccounts();
+    }
+
+    private async Task Transfer()
+    {
+        await Http.PostAsJsonAsync("api/accounts/transfer", new
+        {
+            fromAccountId = _fromAccountId,
+            toAccountId = _toAccountId,
+            amount = _transferAmount
         });
 
         await LoadAccounts();
