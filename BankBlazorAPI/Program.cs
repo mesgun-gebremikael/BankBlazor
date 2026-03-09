@@ -13,6 +13,7 @@ namespace BankBlazorAPI
 
             // Add services to the container.
             builder.Services.AddControllers();
+            builder.Services.AddHttpClient();
 
             builder.Services.AddDbContext<BankBlazorContext>(options =>
      options.UseSqlServer(builder.Configuration.GetConnectionString("BankBlazor")));
